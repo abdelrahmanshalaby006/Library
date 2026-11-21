@@ -1,0 +1,32 @@
+@model BookRowViewModel
+@{
+    var tone = "cover-tone-" + (Math.Abs(Model.Book.Id) % 7);
+    var initial = string.IsNullOrEmpty(Model.Book.Title) ? "?" : Model.Book.Title.Trim()[0].ToString().ToUpper();
+    var available = Model.Book.AvailableCopies > 0;
+}
+<article class="book-card">
+    <a class="book-cover @tone" href="/books/details/@Model.Book.Id" data-initial="@initial" aria-label="Open @Model.Book.Title">
+        <span class="cover-chip">@Model.CategoryName</span>
+        <span class="cover-title">@Model.Book.Title</span>
+        <span class="cover-author">@Model.Book.Author · @Model.Book.Year</span>
+    </a>
+    <div class="book-body">
+        <h3><a href="/books/details/@Model.Book.Id">@Model.Book.Title</a></h3>
+        <div class="book-meta">
+            <span>@Model.Book.Author</span>
+            <span>·</span>
+            <span>@Model.Book.Year</span>
+        </div>
+        <div class="book-foot">
+            @if (available)
+            {
+                <span class="chip chip-ok chip-dot">@Model.Book.AvailableCopies of @Model.Book.Copies available</span>
+            }
+            else
+            {
+                <span class="chip chip-out chip-dot">All copies on loan</span>
+            }
+            <a class="btn btn-sm btn-outline-ink" href="/books/details/@Model.Book.Id">View</a>
+        </div>
+    </div>
+</article>

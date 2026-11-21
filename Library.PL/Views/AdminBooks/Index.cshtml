@@ -1,0 +1,71 @@
+@model List<BookRowViewModel>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Books";
+}
+<div class="admin-page-head d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>Books</h1>
+        <p>@Model.Count titles in the catalogue. Edit details or adjust how many copies the library holds.</p>
+    </div>
+    <a class="btn btn-sm btn-ink" href="/admin/books/create">+ Add book</a>
+</div>
+
+<div class="panel">
+    @if (Model.Count == 0)
+    {
+        <div class="panel-body">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z" /></svg>
+                </div>
+                <h4>No books yet</h4>
+                <p>Add the first title to start building the catalogue.</p>
+                <a class="btn btn-sm btn-ink mt-3" href="/admin/books/create">Add a book</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Book</th><th>Collection</th><th>Year</th><th>Copies</th><th style="width:230px"></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="cell-book">
+                                <span class="mini-cover cover-tone-@(Math.Abs(item.Book.Id) % 7)">@item.Book.Title.Substring(0, 1).ToUpper()</span>
+                                <div>
+                                    <div class="cell-title">@item.Book.Title</div>
+                                    <div class="muted" style="font-size:.76rem">@item.Book.Author · #@item.Book.Id</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="chip chip-neutral">@item.CategoryName</span></td>
+                        <td class="num">@item.Book.Year</td>
+                        <td>
+                            @if (item.Book.AvailableCopies > 0)
+                            {
+                                <span class="chip chip-ok">@item.Book.AvailableCopies / @item.Book.Copies available</span>
+                            }
+                            else
+                            {
+                                <span class="chip chip-out">0 / @item.Book.Copies available</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-ghost" asp-controller="AdminBooks" asp-action="Details" asp-route-id="@item.Book.Id">Details</a>
+                            <a class="btn btn-sm btn-outline-ink" asp-controller="AdminBooks" asp-action="Edit" asp-route-id="@item.Book.Id">Edit</a>
+                            <a class="btn btn-sm btn-soft-danger" asp-controller="AdminBooks" asp-action="Delete" asp-route-id="@item.Book.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,125 @@
+@model List<BookRowViewModel>
+@{
+    ViewData["Title"] = "Home";
+    var categories = ViewBag.Categories as List<Category> ?? new List<Category>();
+}
+<section class="hero">
+    <div class="hero-inner">
+        <span class="hero-eyebrow">City Library · Open to everyone</span>
+        <h1 class="hero-title">A quiet place for<br />curious <em>readers</em>.</h1>
+        <p class="hero-sub">
+            Search the whole catalogue without an account. Join in a minute to request books,
+            follow your due dates and settle late fees right from your My Library page.
+        </p>
+
+        <form class="search-bar" method="get" action="/books" role="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></svg>
+            <input type="text" name="search" placeholder="Search by title or author…" aria-label="Search books" />
+            <button class="btn btn-amber" type="submit">Search</button>
+        </form>
+
+        <div class="hero-meta">
+            <div><strong>@ViewBag.BooksCount</strong> <span>titles on the shelves</span></div>
+            <div><strong>@ViewBag.CategoriesCount</strong> <span>collections</span></div>
+            <div><strong>@LibraryRules.LoanDays</strong> <span>days per loan</span></div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="section-head">
+        <div>
+            <span class="eyebrow">How it works</span>
+            <h2>Borrowing, without the paperwork</h2>
+        </div>
+    </div>
+    <div class="feature-grid">
+        <div class="feature">
+            <div class="f-icon">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></svg>
+            </div>
+            <h3>Browse &amp; search</h3>
+            <p>Filter by collection or search by title and author. No account needed to explore.</p>
+        </div>
+        <div class="feature">
+            <div class="f-icon">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13.5H6.5A2.5 2.5 0 0 0 4 20z" /><path d="M8 8.5h7" /></svg>
+            </div>
+            <h3>Request a book</h3>
+            <p>Send a request in one click. A librarian approves it and the copy is held for you.</p>
+        </div>
+        <div class="feature">
+            <div class="f-icon">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11a4 4 0 0 1 0 8H7" /><path d="m6 6-3 3 3 3" /></svg>
+            </div>
+            <h3>Read &amp; return</h3>
+            <p>Keep it for @LibraryRules.LoanDays days. A friendly @LibraryRules.FinePerDay @LibraryRules.Currency per day applies only if it is late.</p>
+        </div>
+    </div>
+</section>
+
+@if (categories.Count > 0)
+{
+    <section>
+        <div class="section-head">
+            <div>
+                <span class="eyebrow">Collections</span>
+                <h2>Find your shelf</h2>
+            </div>
+            <a class="btn btn-sm btn-outline-ink" href="/books">Browse all books</a>
+        </div>
+        <div class="cat-pills">
+            @foreach (var cat in categories)
+            {
+                <a class="cat-pill" href="/books?categoryId=@cat.Id">@cat.Name</a>
+            }
+        </div>
+    </section>
+}
+
+<section>
+    <div class="section-head">
+        <div>
+            <span class="eyebrow">New on the shelves</span>
+            <h2>Recently added</h2>
+        </div>
+        <a class="btn btn-sm btn-outline-ink" href="/books">See the full catalogue</a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z" /></svg>
+            </div>
+            <h4>The shelves are being stocked</h4>
+            <p>New titles will appear here as soon as they are catalogued.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var item in Model)
+            {
+                <div class="col-sm-6 col-lg-3">
+                    <partial name="_BookCardPartial" model="item" />
+                </div>
+            }
+        </div>
+    }
+</section>
+
+@if (User.Identity?.IsAuthenticated != true)
+{
+    <section class="cta-band">
+        <div>
+            <span class="eyebrow">Membership</span>
+            <h2>Join the library — it takes a minute.</h2>
+            <p>Get a membership number, request books online and track everything you have on loan.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-ink" asp-controller="Account" asp-action="Register">Create an account</a>
+            <a class="btn btn-outline-ink" asp-controller="Account" asp-action="Login">I already have one</a>
+        </div>
+    </section>
+}

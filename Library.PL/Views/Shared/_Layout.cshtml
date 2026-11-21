@@ -1,0 +1,142 @@
+@{
+    var path = (Context.Request.Path.Value ?? "/").ToLower();
+    string navClass(string prefix) =>
+        (prefix == "/" ? path == "/" : path.StartsWith(prefix)) ? "nav-link active" : "nav-link";
+    var isStaff = User.IsInRole("Admin") || User.IsInRole("Librarian");
+    var displayName = User.Identity?.Name ?? "";
+    var initial = displayName.Length > 0 ? displayName[0].ToString() : "?";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · City Library</title>
+    <meta name="description" content="City Library — browse the catalogue, request books and manage your loans online." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+<div class="site-shell">
+    <header class="site-header">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg site-nav p-0">
+                <a class="brand navbar-brand" href="/">
+                    <span class="brand-mark">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z" />
+                            <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19" />
+                            <path d="M9 7.5h6" />
+                        </svg>
+                    </span>
+                    <span class="brand-text">
+                        <strong>City Library</strong>
+                        <small>Read · Borrow · Return</small>
+                    </span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav nav-links ms-auto">
+                        <li class="nav-item"><a class="@navClass("/")" href="/">Home</a></li>
+                        <li class="nav-item"><a class="@navClass("/books")" href="/books">Browse books</a></li>
+                        @if (User.IsInRole("Member"))
+                        {
+                            <li class="nav-item"><a class="@navClass("/my")" href="/my">My Library</a></li>
+                        }
+                        @if (isStaff)
+                        {
+                            <li class="nav-item"><a class="@navClass("/admin")" href="/admin/books">Staff area</a></li>
+                        }
+                    </ul>
+
+                    <div class="nav-actions">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <span class="user-pill">
+                                <span class="avatar">@initial</span>
+                                <span class="text-truncate" style="max-width:150px">@displayName</span>
+                            </span>
+                            <form method="post" asp-controller="Account" asp-action="Logout">
+                                <button type="submit" class="btn btn-sm btn-outline-ink">Sign out</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a class="btn btn-sm btn-outline-ink" asp-controller="Account" asp-action="Login">Sign in</a>
+                            <a class="btn btn-sm btn-ink" asp-controller="Account" asp-action="Register">Join the library</a>
+                        }
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <div class="container">
+            <partial name="_AlertsPartial" />
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a class="brand" href="/">
+                        <span class="brand-mark">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z" />
+                                <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19" />
+                                <path d="M9 7.5h6" />
+                            </svg>
+                        </span>
+                        <span class="brand-text">
+                            <strong>City Library</strong>
+                            <small>Read · Borrow · Return</small>
+                        </span>
+                    </a>
+                    <p>A public library for everyone. Browse the catalogue freely, join to borrow, and keep track of every due date in one place.</p>
+                </div>
+                <div>
+                    <h6>Catalogue</h6>
+                    <ul>
+                        <li><a href="/books">All books</a></li>
+                        <li><a href="/books?categoryId=1">Programming</a></li>
+                        <li><a href="/books?categoryId=2">Novels</a></li>
+                        <li><a href="/books?categoryId=3">Science</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h6>Membership</h6>
+                    <ul>
+                        <li><a asp-controller="Account" asp-action="Register">Create an account</a></li>
+                        <li><a asp-controller="Account" asp-action="Login">Sign in</a></li>
+                        @if (User.IsInRole("Member"))
+                        {
+                            <li><a href="/my">My Library</a></li>
+                        }
+                        <li><a href="/books">@LibraryRules.LoanDays-day loans · @LibraryRules.FinePerDay @LibraryRules.Currency/day late fee</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; @DateTime.Now.Year City Library. All rights reserved.</span>
+                <span>Open Saturday–Thursday · 9:00 – 20:00</span>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script src="/lib/jquery/dist/jquery.min.js"></script>
+<script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

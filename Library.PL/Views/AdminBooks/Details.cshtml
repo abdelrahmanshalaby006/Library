@@ -1,0 +1,42 @@
+@model Book
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Book details";
+    var tone = "cover-tone-" + (Math.Abs(Model.Id) % 7);
+    var initial = string.IsNullOrEmpty(Model.Title) ? "?" : Model.Title.Trim()[0].ToString().ToUpper();
+}
+<div class="admin-page-head d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>@Model.Title</h1>
+        <p>by @Model.Author</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-sm btn-outline-ink" asp-controller="AdminBooks" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+        <a class="btn btn-sm btn-ghost" href="/admin/books">Back to books</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="book-cover @tone" style="border-radius:16px" data-initial="@initial">
+            <span class="cover-chip">@ViewBag.CategoryName</span>
+            <span class="cover-title">@Model.Title</span>
+            <span class="cover-author">@Model.Author · @Model.Year</span>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="panel">
+            <div class="panel-head"><h2>Catalogue record</h2><span class="chip chip-neutral">#@Model.Id</span></div>
+            <div class="panel-body">
+                <dl class="meta-list">
+                    <div><dt>Title</dt><dd>@Model.Title</dd></div>
+                    <div><dt>Author</dt><dd>@Model.Author</dd></div>
+                    <div><dt>Collection</dt><dd>@ViewBag.CategoryName</dd></div>
+                    <div><dt>Published</dt><dd>@Model.Year</dd></div>
+                    <div><dt>Total copies</dt><dd>@Model.Copies</dd></div>
+                    <div><dt>Available now</dt><dd>@Model.AvailableCopies</dd></div>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>

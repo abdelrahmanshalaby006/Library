@@ -1,0 +1,49 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Join the library";
+}
+<div class="auth-wrap">
+    <aside class="auth-aside">
+        <div>
+            <span class="eyebrow" style="color:#e9c98a">Membership</span>
+            <h2>One card.<br />A whole building.</h2>
+            <p>Create your membership in a minute. Your number is issued automatically.</p>
+        </div>
+        <ul>
+            <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4 4 10-10" /></svg>
+                <span>@LibraryRules.LoanDays days per loan, up to @LibraryRules.MaxOpenLoans books at a time</span>
+            </li>
+            <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4 4 10-10" /></svg>
+                <span>Request and cancel books online</span>
+            </li>
+            <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4 4 10-10" /></svg>
+                <span>Free to join — late fees only if a book comes back late</span>
+            </li>
+        </ul>
+    </aside>
+
+    <div class="auth-body">
+        <h1>Create your membership</h1>
+        <p class="lead-sm">Fill in your details and you are ready to borrow.</p>
+
+        <form method="post" asp-controller="Account" asp-action="Register">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <partial name="_MemberFields" model="Model" />
+            <button type="submit" class="btn btn-ink w-100 justify-content-center btn-lg mt-2">Create account</button>
+        </form>
+
+        <p class="muted mt-3 mb-0" style="font-size:.8rem">
+            Password: at least 8 characters, with a lowercase letter and a digit.
+        </p>
+        <p class="muted mt-3 mb-0" style="font-size:.86rem">
+            Already a member? <a asp-controller="Account" asp-action="Login">Sign in</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

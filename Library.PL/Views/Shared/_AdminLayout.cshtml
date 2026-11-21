@@ -1,0 +1,134 @@
+@{
+    var path = (Context.Request.Path.Value ?? "/").ToLower();
+    string navClass(string prefix) => path.StartsWith(prefix) ? "active" : "";
+    var displayName = User.Identity?.Name ?? "";
+    var initial = displayName.Length > 0 ? displayName[0].ToString() : "?";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · Library Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+    <aside class="admin-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
+        <div class="admin-brand offcanvas-header" style="padding:0 0 .8rem">
+            <a class="admin-brand" href="/admin/books" style="border:0;padding:0" id="adminSidebarLabel">
+                <span class="brand-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z" />
+                        <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19" />
+                        <path d="M9 7.5h6" />
+                    </svg>
+                </span>
+                <span>
+                    <strong>City Library</strong>
+                    <small>Staff workspace</small>
+                </span>
+            </a>
+            <button type="button" class="btn-close btn-close-white d-lg-none ms-auto" data-bs-dismiss="offcanvas" data-bs-target="#adminSidebar" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body d-flex flex-column flex-grow-1" style="padding:0">
+            <div class="admin-nav-group">Circulation</div>
+            <ul class="admin-nav">
+                <li>
+                    <a class="@navClass("/admin/borrowings")" href="/admin/borrowings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13.5H6.5A2.5 2.5 0 0 0 4 20z"/><path d="M8 8.5h7"/></svg>
+                        Borrowings
+                    </a>
+                </li>
+                <li>
+                    <a class="@navClass("/admin/returns")" href="/admin/returns">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11a4 4 0 0 1 0 8H7"/><path d="m6 6-3 3 3 3"/></svg>
+                        Returns
+                    </a>
+                </li>
+                <li class="nav-action"><a class="btn btn-amber btn-sm" href="/admin/borrowings/lend">Lend a book</a></li>
+            </ul>
+
+            <div class="admin-nav-group">Catalogue</div>
+            <ul class="admin-nav">
+                <li>
+                    <a class="@navClass("/admin/books")" href="/admin/books">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5h6a2 2 0 0 1 2 2V20a1.6 1.6 0 0 0-1.6-1.6H4z"/><path d="M20 4.5h-6a2 2 0 0 0-2 2V20a1.6 1.6 0 0 1 1.6-1.6H20z"/></svg>
+                        Books
+                    </a>
+                </li>
+                <li>
+                    <a class="@navClass("/admin/categories")" href="/admin/categories">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h7l2 3h7"/><path d="M4 7v11h16V10"/></svg>
+                        Categories
+                    </a>
+                </li>
+            </ul>
+
+            <div class="admin-nav-group">People</div>
+            <ul class="admin-nav">
+                <li>
+                    <a class="@navClass("/admin/members")" href="/admin/members">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.1 2.7-5.4 6-5.4s6 2.3 6 5.4"/><path d="M16 5.2A3.2 3.2 0 0 1 16 11"/><path d="M18 14.8c2 .7 3 2.4 3 5.2"/></svg>
+                        Members
+                    </a>
+                </li>
+                @if (User.IsInRole("Admin"))
+                {
+                    <li>
+                        <a class="@navClass("/admin/staff")" href="/admin/staff">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4.5 6v5.5c0 4.4 3.1 8.2 7.5 9.5 4.4-1.3 7.5-5.1 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/></svg>
+                            Staff accounts
+                        </a>
+                    </li>
+                }
+            </ul>
+
+            <div class="admin-sidebar-foot">
+                <div class="d-flex align-items-center gap-2 px-2 pb-2">
+                    <span class="avatar" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(145deg,#e9b64f,#b47a1c);color:#fff;display:grid;place-items:center;font-size:.75rem;font-weight:700;">@initial</span>
+                    <span class="text-truncate" style="font-size:.8rem;color:rgba(244,239,225,.75)">@displayName</span>
+                </div>
+                <a class="btn-link" href="/">&larr; Back to website</a>
+                <form method="post" asp-controller="Account" asp-action="Logout">
+                    <button type="submit" class="btn-link border-0 bg-transparent w-100">Sign out</button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-ink d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                    Menu
+                </button>
+                <div class="crumb">
+                    <a href="/admin/books">Staff</a>
+                    <span class="sep">/</span>
+                    <span class="current">@ViewData["Title"]</span>
+                </div>
+            </div>
+            <div class="who">
+                <span class="chip chip-ok chip-dot">@(User.IsInRole("Admin") ? "Administrator" : "Librarian")</span>
+            </div>
+        </div>
+
+        <div class="admin-content">
+            <partial name="_AlertsPartial" />
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+<script src="/lib/jquery/dist/jquery.min.js"></script>
+<script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

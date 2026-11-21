@@ -1,0 +1,36 @@
+@model Book
+@* حقول Create و Edit المشتركة. ViewBag.Categories جاي من الـ Controller *@
+<div class="mb-3">
+    <label asp-for="Title" class="form-label"></label>
+    <input asp-for="Title" class="form-control" placeholder="e.g. Clean Code" />
+    <span asp-validation-for="Title" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Author" class="form-label"></label>
+    <input asp-for="Author" class="form-control" placeholder="e.g. Robert C. Martin" />
+    <span asp-validation-for="Author" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="CategoryId" class="form-label"></label>
+    <select asp-for="CategoryId" class="form-select">
+        <option value="0">— Choose a collection —</option>
+        @foreach (var cat in (List<Category>)ViewBag.Categories)
+        {
+            <option value="@cat.Id">@cat.Name</option>
+        }
+    </select>
+    <span asp-validation-for="CategoryId" class="text-danger"></span>
+</div>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Year" class="form-label"></label>
+        <input asp-for="Year" class="form-control" />
+        <span asp-validation-for="Year" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Copies" class="form-label"></label>
+        <input asp-for="Copies" class="form-control" />
+        <span asp-validation-for="Copies" class="text-danger"></span>
+        <div class="form-text">Copies already borrowed cannot be removed.</div>
+    </div>
+</div>

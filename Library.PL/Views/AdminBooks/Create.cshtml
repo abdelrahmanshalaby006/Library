@@ -1,0 +1,25 @@
+@model Book
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Add book";
+}
+<div class="admin-page-head">
+    <h1>Add a book</h1>
+    <p>New titles start with every copy available on the shelf.</p>
+</div>
+
+<div class="panel form-panel">
+    <div class="panel-body">
+        <form method="post" asp-controller="AdminBooks" asp-action="Create">
+            <partial name="_BookForm" model="Model" />
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-ink">Save book</button>
+                <a class="btn btn-ghost" href="/admin/books">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

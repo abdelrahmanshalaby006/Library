@@ -1,0 +1,47 @@
+@model Book
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Delete book";
+    bool hasHistory = ViewBag.HasHistory == true;
+}
+<div class="admin-page-head">
+    <h1>Delete book</h1>
+    <p>Removing a title cannot be undone.</p>
+</div>
+
+<div class="panel form-panel">
+    <div class="panel-body">
+        @if (hasHistory)
+        {
+            <div class="toast-alert err mb-4">
+                <span class="toast-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5h.01" /></svg>
+                </span>
+                <span>This book has borrowing history, so it can't be deleted. Edit it and set the total copies to 0 to retire it instead.</span>
+            </div>
+        }
+        else
+        {
+            <div class="toast-alert err mb-4">
+                <span class="toast-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5h.01" /></svg>
+                </span>
+                <span>Are you sure you want to delete <strong>@Model.Title</strong>?</span>
+            </div>
+        }
+
+        <dl class="meta-list">
+            <div><dt>Title</dt><dd>@Model.Title</dd></div>
+            <div><dt>Author</dt><dd>@Model.Author</dd></div>
+            <div><dt>Collection</dt><dd>@ViewBag.CategoryName</dd></div>
+        </dl>
+
+        <form method="post" asp-controller="AdminBooks" asp-action="DeleteConfirmed" asp-route-id="@Model.Id" class="mt-4">
+            @if (!hasHistory)
+            {
+                <button type="submit" class="btn btn-soft-danger">Yes, delete this book</button>
+            }
+            <a class="btn btn-ghost" href="/admin/books">Cancel</a>
+        </form>
+    </div>
+</div>

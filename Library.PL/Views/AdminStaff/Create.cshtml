@@ -1,0 +1,48 @@
+@model StaffCreateViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Add staff account";
+}
+<div class="admin-page-head">
+    <h1>Add a staff account</h1>
+    <p>Staff accounts are separate from member cards and cannot borrow books.</p>
+</div>
+
+<div class="panel form-panel" style="max-width:540px">
+    <div class="panel-body">
+        <form method="post" asp-controller="AdminStaff" asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" placeholder="name@library.local" autocomplete="username" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Role" class="form-label"></label>
+                <select asp-for="Role" class="form-select">
+                    <option value="Librarian">Librarian — books, members, borrowings and returns</option>
+                    <option value="Admin">Administrator — everything, plus staff accounts</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="ConfirmPassword" class="form-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-ink">Create account</button>
+                <a class="btn btn-ghost" href="/admin/staff">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

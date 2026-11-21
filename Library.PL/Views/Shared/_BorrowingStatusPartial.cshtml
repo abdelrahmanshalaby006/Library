@@ -1,0 +1,25 @@
+@model Borrowing
+@if (Model.IsOverdue)
+{
+    <span class="chip chip-out chip-dot">Overdue · @Model.OverdueDays d</span>
+}
+else if (Model.Status == BorrowingStatus.Pending)
+{
+    <span class="chip chip-pending chip-dot">Pending</span>
+}
+else if (Model.Status == BorrowingStatus.Borrowed)
+{
+    <span class="chip chip-info chip-dot">On loan</span>
+}
+else if (Model.Status == BorrowingStatus.Returned)
+{
+    <span class="chip chip-ok chip-dot">Returned</span>
+}
+else if (Model.Status == BorrowingStatus.Rejected)
+{
+    <span class="chip chip-neutral chip-dot">Rejected</span>
+}
+else
+{
+    <span class="chip chip-neutral chip-dot">Cancelled</span>
+}

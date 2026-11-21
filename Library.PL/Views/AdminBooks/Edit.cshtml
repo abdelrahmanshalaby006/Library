@@ -1,0 +1,26 @@
+@model Book
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Edit book";
+}
+<div class="admin-page-head">
+    <h1>Edit book</h1>
+    <p>@Model.Title · @Model.AvailableCopies of @Model.Copies copies currently available.</p>
+</div>
+
+<div class="panel form-panel">
+    <div class="panel-body">
+        <form method="post" asp-controller="AdminBooks" asp-action="Edit" asp-route-id="@Model.Id">
+            <input type="hidden" asp-for="Id" />
+            <partial name="_BookForm" model="Model" />
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-ink">Save changes</button>
+                <a class="btn btn-ghost" href="/admin/books">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

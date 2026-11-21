@@ -1,0 +1,53 @@
+@model List<StaffRowViewModel>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Staff accounts";
+}
+<div class="admin-page-head d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>Staff accounts</h1>
+        <p>Librarians run the desk. Administrators can also create staff accounts.</p>
+    </div>
+    <a class="btn btn-sm btn-ink" href="/admin/staff/create">+ Add staff account</a>
+</div>
+
+<div class="panel" style="max-width:680px">
+    @if (Model.Count == 0)
+    {
+        <div class="panel-body"><p class="muted mb-0" style="font-size:.88rem">No staff accounts yet.</p></div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Email</th><th>Role</th><th>Access</th></tr></thead>
+                <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="cell-book">
+                                <span class="avatar" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(145deg,#1a5745,#113a2e);color:#f4efe1;display:grid;place-items:center;font-size:.78rem;font-weight:700;">@s.Email.Substring(0, 1).ToUpper()</span>
+                                <span class="cell-strong">@s.Email</span>
+                            </div>
+                        </td>
+                        <td>
+                            @if (s.Role == "Admin")
+                            {
+                                <span class="chip chip-out">Administrator</span>
+                            }
+                            else
+                            {
+                                <span class="chip chip-info">Librarian</span>
+                            }
+                        </td>
+                        <td class="muted" style="font-size:.8rem">
+                            @(s.Role == "Admin" ? "Everything, including staff accounts" : "Books, members, borrowings and returns")
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,61 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+}
+<div class="auth-wrap">
+    <aside class="auth-aside">
+        <div>
+            <span class="eyebrow" style="color:#e9c98a">Welcome back</span>
+            <h2>Your next book is<br />already waiting.</h2>
+            <p>Sign in to follow your loans, check due dates and request new titles.</p>
+        </div>
+        <ul>
+            <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4 4 10-10" /></svg>
+                <span>Every loan and due date in one dashboard</span>
+            </li>
+            <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4 4 10-10" /></svg>
+                <span>Request books that are on the shelf right now</span>
+            </li>
+            <li>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4 4 10-10" /></svg>
+                <span>See fines before they surprise you</span>
+            </li>
+        </ul>
+    </aside>
+
+    <div class="auth-body">
+        <h1>Sign in</h1>
+        <p class="lead-sm">Members, librarians and administrators use the same door.</p>
+
+        <form method="post" asp-controller="Account" asp-action="Login">
+            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="username" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" placeholder="Your password" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-check mb-4">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label" style="font-size:.86rem"></label>
+            </div>
+            <button type="submit" class="btn btn-ink w-100 justify-content-center btn-lg">Sign in</button>
+        </form>
+
+        <p class="muted mt-4 mb-0" style="font-size:.86rem">
+            New here? <a asp-controller="Account" asp-action="Register">Create a membership</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

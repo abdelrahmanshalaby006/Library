@@ -1,0 +1,17 @@
+@model Borrowing
+@if (Model.FineStatus == FineStatus.Unpaid)
+{
+    <span class="chip chip-out">@Model.FineAmount @LibraryRules.Currency unpaid</span>
+}
+else if (Model.FineStatus == FineStatus.Paid)
+{
+    <span class="chip chip-neutral">@Model.FineAmount @LibraryRules.Currency paid</span>
+}
+else if (Model.IsOverdue)
+{
+    <span class="text-danger" style="font-size:.78rem">@Model.CurrentFine @LibraryRules.Currency so far</span>
+}
+else
+{
+    <span class="muted">—</span>
+}

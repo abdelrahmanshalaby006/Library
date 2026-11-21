@@ -1,0 +1,85 @@
+@model List<Member>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Members";
+    var search = ViewBag.Search as string;
+}
+<div class="admin-page-head d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>Members</h1>
+        <p>@Model.Count registered memberships. Deactivate a card instead of deleting it to keep the history.</p>
+    </div>
+    <a class="btn btn-sm btn-ink" href="/admin/members/create">+ Add member</a>
+</div>
+
+<form method="get" class="filter-panel">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label" for="memberSearch">Search members</label>
+            <input id="memberSearch" type="text" name="search" value="@search" class="form-control" placeholder="Name, email or membership number…" />
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button class="btn btn-ink flex-grow-1 justify-content-center" type="submit">Search</button>
+            @if (!string.IsNullOrWhiteSpace(search))
+            {
+                <a class="btn btn-outline-ink" href="/admin/members">Reset</a>
+            }
+        </div>
+    </div>
+</form>
+
+<div class="panel">
+    @if (Model.Count == 0)
+    {
+        <div class="panel-body">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4" /><path d="M5 20c0-3.4 3.1-6 7-6s7 2.6 7 6" /></svg>
+                </div>
+                <h4>No members found</h4>
+                <p>Try a different search, or register a new membership.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Member</th><th>Number</th><th>Phone</th><th>Joined</th><th>Status</th><th style="width:180px"></th></tr></thead>
+                <tbody>
+                @foreach (var m in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="cell-book">
+                                <span class="avatar" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(145deg,#e9b64f,#b47a1c);color:#fff;display:grid;place-items:center;font-size:.8rem;font-weight:700;">@m.FullName.Substring(0, 1).ToUpper()</span>
+                                <div>
+                                    <div class="cell-title">@m.FullName</div>
+                                    <div class="muted" style="font-size:.76rem">@m.ApplicationUser.Email</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="num">@m.MembershipNumber</td>
+                        <td class="num">@(string.IsNullOrWhiteSpace(m.PhoneNumber) ? "—" : m.PhoneNumber)</td>
+                        <td class="num">@m.JoinedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            @if (m.IsActive)
+                            {
+                                <span class="chip chip-ok chip-dot">Active</span>
+                            }
+                            else
+                            {
+                                <span class="chip chip-neutral chip-dot">Inactive</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-ghost" asp-controller="AdminMembers" asp-action="Details" asp-route-id="@m.Id">Details</a>
+                            <a class="btn btn-sm btn-outline-ink" asp-controller="AdminMembers" asp-action="Edit" asp-route-id="@m.Id">Edit</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

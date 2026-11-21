@@ -1,0 +1,26 @@
+@model RegisterViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Add member";
+}
+<div class="admin-page-head">
+    <h1>Register a member</h1>
+    <p>The membership number is issued automatically and the account gets the Member role.</p>
+</div>
+
+<div class="panel form-panel">
+    <div class="panel-body">
+        <form method="post" asp-controller="AdminMembers" asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <partial name="_MemberFields" model="Model" />
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-ink">Create member</button>
+                <a class="btn btn-ghost" href="/admin/members">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

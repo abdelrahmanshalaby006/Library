@@ -1,0 +1,184 @@
+@model MemberOverviewViewModel
+@{
+    ViewData["Title"] = "My Library";
+    var current = Model.Borrowings.Where(b => b.Status == BorrowingStatus.Borrowed).ToList();
+    var requests = Model.Borrowings.Where(b => b.Status == BorrowingStatus.Pending).ToList();
+    var history = Model.Borrowings.Where(b => b.Status != BorrowingStatus.Borrowed && b.Status != BorrowingStatus.Pending).ToList();
+    var initial = string.IsNullOrEmpty(Model.Member.FullName) ? "?" : Model.Member.FullName.Trim()[0].ToString().ToUpper();
+    var overdue = current.Count(b => b.IsOverdue);
+}
+<section class="member-banner">
+    <div class="d-flex align-items-start gap-3 flex-wrap">
+        <span style="width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:#fdfaf1;">@initial</span>
+        <div>
+            <span class="sub" style="letter-spacing:.14em;text-transform:uppercase;font-size:.68rem">Member dashboard</span>
+            <h1>@Model.Member.FullName</h1>
+            <div class="sub">Membership <strong style="color:#f4efe1">@Model.Member.MembershipNumber</strong> · @Model.Member.ApplicationUser.Email</div>
+            <div class="badge-line">
+                @if (Model.Member.IsActive)
+                {
+                    <span class="chip chip-dot">Active membership</span>
+                }
+                else
+                {
+                    <span class="chip chip-dot">Inactive membership</span>
+                }
+                <span class="chip">Joined @Model.Member.JoinedAt.ToString("MMM yyyy")</span>
+                <span class="chip">Up to @LibraryRules.MaxOpenLoans open loans</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="stat-grid">
+    <div class="stat">
+        <div class="stat-label">On loan now</div>
+        <div class="stat-value">@current.Count</div>
+        <div class="stat-note">of @LibraryRules.MaxOpenLoans allowed</div>
+    </div>
+    <div class="stat warn">
+        <div class="stat-label">Pending requests</div>
+        <div class="stat-value">@requests.Count</div>
+        <div class="stat-note">waiting for a librarian</div>
+    </div>
+    <div class="stat @(overdue > 0 ? "danger" : "ok")">
+        <div class="stat-label">Overdue</div>
+        <div class="stat-value">@overdue</div>
+        <div class="stat-note">@(overdue > 0 ? "please return them" : "everything on time")</div>
+    </div>
+    <div class="stat @(Model.UnpaidFines > 0 ? "danger" : "")">
+        <div class="stat-label">Unpaid fines</div>
+        <div class="stat-value">@Model.UnpaidFines <span style="font-size:.9rem">@LibraryRules.Currency</span></div>
+        <div class="stat-note">pay at the front desk</div>
+    </div>
+</div>
+
+@if (Model.UnpaidFines > 0)
+{
+    <div class="toast-alert err" style="margin-bottom:1.8rem">
+        <span class="toast-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5h.01" /></svg>
+        </span>
+        <span>You have unpaid fines of <strong>@Model.UnpaidFines @LibraryRules.Currency</strong>. New requests are blocked until they are settled at the library desk.</span>
+    </div>
+}
+
+<div class="panel mb-4">
+    <div class="panel-head">
+        <h2>Books with you</h2>
+        <span class="chip chip-info">@current.Count on loan</span>
+    </div>
+    @if (current.Count == 0)
+    {
+        <div class="panel-body">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z" /></svg>
+                </div>
+                <h4>Nothing borrowed yet</h4>
+                <p>Find something in the catalogue and send your first request.</p>
+                <a class="btn btn-sm btn-ink mt-3" href="/books">Browse books</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Book</th><th>Borrowed</th><th>Due date</th><th>Status</th><th>Fine</th></tr></thead>
+                <tbody>
+                @foreach (var b in current)
+                {
+                    var due = b.DueDate?.ToString("dd MMM yyyy") ?? "-";
+                    <tr>
+                        <td>
+                            <div class="cell-book">
+                                <span class="mini-cover cover-tone-@(Math.Abs(b.BookId) % 7)">@b.Book.Title.Substring(0, 1).ToUpper()</span>
+                                <div>
+                                    <div class="cell-title">@b.Book.Title</div>
+                                    <div class="muted" style="font-size:.76rem">@b.Book.Author</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="num">@(b.BorrowedAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                        <td class="num">@due</td>
+                        <td><partial name="_BorrowingStatusPartial" model="b" /></td>
+                        <td><partial name="_FinePartial" model="b" /></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="panel mb-4">
+    <div class="panel-head">
+        <h2>Pending requests</h2>
+        <span class="chip chip-pending">@requests.Count waiting</span>
+    </div>
+    @if (requests.Count == 0)
+    {
+        <div class="panel-body">
+            <p class="muted mb-0" style="font-size:.88rem">No pending requests. Anything you ask for will appear here until a librarian approves or rejects it.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Book</th><th>Requested</th><th style="width:130px"></th></tr></thead>
+                <tbody>
+                @foreach (var b in requests)
+                {
+                    <tr>
+                        <td>
+                            <div class="cell-title">@b.Book.Title</div>
+                            <div class="muted" style="font-size:.76rem">@b.Book.Author</div>
+                        </td>
+                        <td class="num">@b.RequestedAt.ToString("dd MMM yyyy · HH:mm")</td>
+                        <td class="text-end">
+                            <form method="post" asp-controller="MyLibrary" asp-action="CancelRequest" asp-route-id="@b.Id">
+                                <button type="submit" class="btn btn-sm btn-soft-danger">Cancel request</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="panel">
+    <div class="panel-head">
+        <h2>History</h2>
+        <span class="chip chip-neutral">@history.Count records</span>
+    </div>
+    @if (history.Count == 0)
+    {
+        <div class="panel-body">
+            <p class="muted mb-0" style="font-size:.88rem">Returned books and closed requests will be listed here.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Book</th><th>Borrowed</th><th>Returned</th><th>Status</th><th>Fine</th></tr></thead>
+                <tbody>
+                @foreach (var b in history)
+                {
+                    <tr>
+                        <td class="cell-title">@b.Book.Title</td>
+                        <td class="num">@(b.BorrowedAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                        <td class="num">@(b.ReturnedAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                        <td><partial name="_BorrowingStatusPartial" model="b" /></td>
+                        <td><partial name="_FinePartial" model="b" /></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

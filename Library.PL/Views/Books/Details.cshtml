@@ -1,0 +1,90 @@
+@model Book
+@{
+    ViewData["Title"] = Model.Title;
+    var tone = "cover-tone-" + (Math.Abs(Model.Id) % 7);
+    var initial = string.IsNullOrEmpty(Model.Title) ? "?" : Model.Title.Trim()[0].ToString().ToUpper();
+    var available = Model.AvailableCopies > 0;
+    var ratio = Model.Copies > 0 ? (int)Math.Round(Model.AvailableCopies * 100.0 / Model.Copies) : 0;
+}
+<nav class="crumb mb-3" style="font-size:.82rem;color:var(--muted)">
+    <a href="/books" class="muted">Catalogue</a>
+    <span class="mx-1" style="opacity:.5">/</span>
+    <span>@Model.Title</span>
+</nav>
+
+<div class="book-detail">
+    <div class="book-cover cover-large @tone" data-initial="@initial">
+        <span class="cover-chip">@ViewBag.CategoryName</span>
+        <span class="cover-title">@Model.Title</span>
+        <span class="cover-author">@Model.Author · @Model.Year</span>
+    </div>
+
+    <div>
+        <span class="eyebrow">@ViewBag.CategoryName</span>
+        <h1 style="font-size:clamp(1.9rem,3.6vw,2.7rem);line-height:1.08;margin-bottom:.4rem">@Model.Title</h1>
+        <p class="muted" style="font-size:1rem">by <strong style="color:var(--ink-soft)">@Model.Author</strong></p>
+
+        <dl class="detail-meta">
+            <div><dt>Published</dt><dd>@Model.Year</dd></div>
+            <div><dt>Collection</dt><dd>@ViewBag.CategoryName</dd></div>
+            <div><dt>Total copies</dt><dd>@Model.Copies</dd></div>
+            <div><dt>Available now</dt><dd>@Model.AvailableCopies</dd></div>
+        </dl>
+
+        <div class="avail-meter">
+            @if (available)
+            {
+                <span class="chip chip-ok chip-dot">Available</span>
+            }
+            else
+            {
+                <span class="chip chip-out chip-dot">All copies on loan</span>
+            }
+            <span class="meter @(available ? "" : "is-empty")"><span style="width:@(ratio)%"></span></span>
+            <span class="muted" style="font-size:.78rem">@Model.AvailableCopies / @Model.Copies</span>
+        </div>
+
+        <div class="detail-actions">
+            @if (User.IsInRole("Member"))
+            {
+                if (available)
+                {
+                    <form method="post" asp-controller="MyLibrary" asp-action="Borrow" asp-route-bookId="@Model.Id">
+                        <button type="submit" class="btn btn-ink btn-lg">Request to borrow</button>
+                    </form>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-outline-ink btn-lg" disabled>No copies available</button>
+                }
+                <a class="btn btn-ghost" asp-controller="MyLibrary" asp-action="Index">My Library</a>
+            }
+            else if (User.Identity?.IsAuthenticated != true)
+            {
+                <a class="btn btn-ink btn-lg" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">Sign in to borrow</a>
+                <a class="btn btn-outline-ink btn-lg" asp-controller="Account" asp-action="Register">Join the library</a>
+            }
+            else
+            {
+                <a class="btn btn-ink" href="/admin/borrowings/lend?bookId=@Model.Id">Lend this book</a>
+            }
+        </div>
+
+        <div class="rules-note">
+            <strong>Loan rules.</strong> Up to @LibraryRules.MaxOpenLoans open loans per member ·
+            @LibraryRules.LoanDays days per loan · late fee @LibraryRules.FinePerDay @LibraryRules.Currency per day.
+            Requests wait for a librarian's approval; if every copy is out, ask at the desk and we will hold one for you.
+        </div>
+    </div>
+</div>
+
+<div class="section-head">
+    <div>
+        <span class="eyebrow">Keep looking</span>
+        <h2>More from @ViewBag.CategoryName</h2>
+    </div>
+    <a class="btn btn-sm btn-outline-ink" href="/books">Back to the catalogue</a>
+</div>
+<p class="muted" style="font-size:.86rem">
+    Browse the <a href="/books">full catalogue</a> or search for another title.
+</p>

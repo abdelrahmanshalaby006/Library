@@ -1,0 +1,29 @@
+@model Category
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Add collection";
+}
+<div class="admin-page-head">
+    <h1>Add a collection</h1>
+    <p>Collections group books on the shelves and in the catalogue filters.</p>
+</div>
+
+<div class="panel form-panel" style="max-width:520px">
+    <div class="panel-body">
+        <form method="post" asp-controller="AdminCategories" asp-action="Create">
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Poetry" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-ink">Create collection</button>
+                <a class="btn btn-ghost" href="/admin/categories">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

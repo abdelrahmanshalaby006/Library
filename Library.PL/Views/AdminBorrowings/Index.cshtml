@@ -1,0 +1,89 @@
+@model List<Borrowing>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Borrowings";
+    string status = ViewBag.Status ?? "all";
+    int pendingCount = ViewBag.PendingCount ?? 0;
+    int borrowedCount = ViewBag.BorrowedCount ?? 0;
+}
+<div class="admin-page-head d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>Borrowings</h1>
+        <p>Approve or reject member requests, and hand books over at the desk.</p>
+    </div>
+    <a class="btn btn-sm btn-ink" href="/admin/borrowings/lend">+ Lend a book</a>
+</div>
+
+<div class="filter-tabs">
+    <a class="filter-tab @(status == "all" ? "active" : "")" href="/admin/borrowings">All</a>
+    <a class="filter-tab @(status == "pending" ? "active" : "")" href="/admin/borrowings?status=pending">
+        Pending requests <span class="count">@pendingCount</span>
+    </a>
+    <a class="filter-tab @(status == "borrowed" ? "active" : "")" href="/admin/borrowings?status=borrowed">
+        On loan <span class="count">@borrowedCount</span>
+    </a>
+    <a class="filter-tab @(status == "rejected" ? "active" : "")" href="/admin/borrowings?status=rejected">Closed requests</a>
+    <a class="filter-tab ms-auto" href="/admin/returns">Returns desk →</a>
+</div>
+
+<div class="panel">
+    @if (Model.Count == 0)
+    {
+        <div class="panel-body">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H19v13.5H6.5A2.5 2.5 0 0 0 4 20z" /></svg>
+                </div>
+                <h4>Nothing here</h4>
+                <p>No borrowing records match this filter.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr><th>#</th><th>Book</th><th>Member</th><th>Requested</th><th>Due</th><th>Status</th><th>Fine</th><th style="width:230px"></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <td class="num muted">@b.Id</td>
+                        <td>
+                            <div class="cell-book">
+                                <span class="mini-cover cover-tone-@(Math.Abs(b.BookId) % 7)">@b.Book.Title.Substring(0, 1).ToUpper()</span>
+                                <div>
+                                    <div class="cell-title">@b.Book.Title</div>
+                                    <div class="muted" style="font-size:.76rem">@b.Book.Author</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><a asp-controller="AdminMembers" asp-action="Details" asp-route-id="@b.MemberId">@b.Member.FullName</a></td>
+                        <td class="num">@b.RequestedAt.ToString("dd MMM yyyy")</td>
+                        <td class="num">@(b.DueDate?.ToString("dd MMM yyyy") ?? "—")</td>
+                        <td><partial name="_BorrowingStatusPartial" model="b" /></td>
+                        <td><partial name="_FinePartial" model="b" /></td>
+                        <td class="text-end">
+                            @if (b.Status == BorrowingStatus.Pending)
+                            {
+                                <form method="post" asp-controller="AdminBorrowings" asp-action="Approve" asp-route-id="@b.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-soft-ok">Approve</button>
+                                </form>
+                                <form method="post" asp-controller="AdminBorrowings" asp-action="Reject" asp-route-id="@b.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-soft-danger">Reject</button>
+                                </form>
+                            }
+                            else if (b.Status == BorrowingStatus.Borrowed)
+                            {
+                                <a class="btn btn-sm btn-outline-ink" href="/admin/returns?filter=active">Return at desk</a>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

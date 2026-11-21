@@ -1,0 +1,74 @@
+@model MemberOverviewViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = Model.Member.FullName;
+    var current = Model.Borrowings.Where(b => b.Status == BorrowingStatus.Borrowed).ToList();
+}
+<div class="admin-page-head d-flex flex-wrap justify-content-between align-items-end gap-3">
+    <div>
+        <h1>@Model.Member.FullName</h1>
+        <p>Member @Model.Member.MembershipNumber · joined @Model.Member.JoinedAt.ToString("dd MMM yyyy")</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-sm btn-outline-ink" asp-controller="AdminMembers" asp-action="Edit" asp-route-id="@Model.Member.Id">Edit member</a>
+        <a class="btn btn-sm btn-ink" asp-controller="AdminBorrowings" asp-action="Lend" asp-route-memberId="@Model.Member.Id">Lend a book</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-4">
+        <div class="panel h-100">
+            <div class="panel-head"><h2>Card details</h2>
+                @if (Model.Member.IsActive)
+                {
+                    <span class="chip chip-ok chip-dot">Active</span>
+                }
+                else
+                {
+                    <span class="chip chip-neutral chip-dot">Inactive</span>
+                }
+            </div>
+            <div class="panel-body">
+                <dl class="meta-list">
+                    <div><dt>Membership</dt><dd>@Model.Member.MembershipNumber</dd></div>
+                    <div><dt>Email</dt><dd>@Model.Member.ApplicationUser.Email</dd></div>
+                    <div><dt>Phone</dt><dd>@(string.IsNullOrWhiteSpace(Model.Member.PhoneNumber) ? "—" : Model.Member.PhoneNumber)</dd></div>
+                    <div><dt>Address</dt><dd>@(string.IsNullOrWhiteSpace(Model.Member.Address) ? "—" : Model.Member.Address)</dd></div>
+                    <div><dt>On loan now</dt><dd>@current.Count</dd></div>
+                    <div><dt>Unpaid fines</dt><dd>@Model.UnpaidFines @LibraryRules.Currency</dd></div>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="panel h-100">
+            <div class="panel-head"><h2>Borrowing history</h2><span class="chip chip-neutral">@Model.Borrowings.Count records</span></div>
+            @if (Model.Borrowings.Count == 0)
+            {
+                <div class="panel-body"><p class="muted mb-0" style="font-size:.88rem">This member has not borrowed anything yet.</p></div>
+            }
+            else
+            {
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>Book</th><th>Borrowed</th><th>Due</th><th>Returned</th><th>Status</th><th>Fine</th></tr></thead>
+                        <tbody>
+                        @foreach (var b in Model.Borrowings)
+                        {
+                            <tr>
+                                <td class="cell-title">@b.Book.Title</td>
+                                <td class="num">@(b.BorrowedAt?.ToString("dd MMM yy") ?? "—")</td>
+                                <td class="num">@(b.DueDate?.ToString("dd MMM yy") ?? "—")</td>
+                                <td class="num">@(b.ReturnedAt?.ToString("dd MMM yy") ?? "—")</td>
+                                <td><partial name="_BorrowingStatusPartial" model="b" /></td>
+                                <td><partial name="_FinePartial" model="b" /></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
